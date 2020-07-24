@@ -5,6 +5,7 @@ public class Tween {
     public var _onStart: (() -> ())?
     public var _onUpdate: ((_ progress: Double) -> ())?
     public var _onComplete: (() -> ())?
+    public var _onLoopsComplete: (() -> ())?
     public var _onPingPongComplete: (() -> ())?
     
     public var easingFn: ((_ time: Double) -> Double) = easeLinear
@@ -87,6 +88,11 @@ public class Tween {
     
     public func onComplete(_ completeFn: @escaping (() -> ())) -> Tween {
         _onComplete = completeFn
+        return self
+    }
+    
+    public func onLoopsComplete(_ loopsCompleteFn: @escaping (() -> ())) -> Tween {
+        _onLoopsComplete = loopsCompleteFn
         return self
     }
     
@@ -190,6 +196,9 @@ public class Tween {
             var loopsLeft = Int.max
             if !looping, loops > 0 {
                 loopsLeft = loops - loop
+                if loopsLeft == 0 {
+                    _onLoopsComplete?()
+                }
             }
             
             if pingPong, loopsLeft > 0 {
