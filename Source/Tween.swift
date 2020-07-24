@@ -3,33 +3,33 @@ import Foundation
 
 public class Tween {
     // Properties
+    public private(set) var id: String = UUID().uuidString
+    public private(set) var loops: Int = 0
+    public private(set) var loop: Int = 0
     
-    public var id: String = UUID().uuidString
-    public var loops: Int = 0
-    public var loop: Int = 0
+    public private(set) var tweening: Bool = false
+    public private(set) var complete: Bool = false
+    public private(set) var looping: Bool = false
+    public private(set) var pingPong: Bool = false
+    public private(set) var pingPongState: Bool = false
+    public private(set) var progress: Double = 0.0
     
-    public var tweening: Bool = false
-    public var complete: Bool = false
-    public var looping: Bool = false
-    public var pingPong: Bool = false
-    public var pingPongState: Bool = false
-    private var delayOnLoop: Bool = false
-    private var delayOnPingPong: Bool = false
-    public var progress: Double = 0.0
+    public private(set) var delayOnLoop: Bool = false
+    public private(set) var delayOnPingPong: Bool = false
     
     // Easing
     public var easingFn: ((_ time: Double) -> Double) = easeLinear
     
     // Callbacks
-    public var _onStart: (() -> ())?
-    public var _onRestart: (() -> ())?
-    public var _onPlay: (() -> ())?
-    public var _onPause: (() -> ())?
-    public var _onStop: (() -> ())?
-    public var _onUpdate: ((_ progress: Double) -> ())?
-    public var _onComplete: (() -> ())?
-    public var _onLoopsComplete: (() -> ())?
-    public var _onPingPongComplete: (() -> ())?
+    private var _onStart: (() -> ())?
+    private var _onRestart: (() -> ())?
+    private var _onPlay: (() -> ())?
+    private var _onPause: (() -> ())?
+    private var _onStop: (() -> ())?
+    private var _onUpdate: ((_ progress: Double) -> ())?
+    private var _onComplete: (() -> ())?
+    private var _onLoopsComplete: (() -> ())?
+    private var _onPingPongComplete: (() -> ())?
     
     private var firstTime: Bool = true
     private var delay: CFTimeInterval = 0.0
