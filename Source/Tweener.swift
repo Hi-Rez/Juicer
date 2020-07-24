@@ -47,12 +47,21 @@ public class Tweener {
         }
     }
 
-    public class func tween(duration: Double, delay: Double = 0.0) -> Tween {
+    public class func tween(duration: Double) -> Tween {
         if Tweener.displayLink == nil {
             setupDisplayLink()
         }
-        let tween = Tween(duration: duration, delay: delay)
+        let tween = Tween(duration: duration)
         tweens.append(tween)
         return tween
+    }
+    
+    public class func append(_ tween: Tween) {
+        if Tweener.displayLink == nil {
+            setupDisplayLink()
+        }
+        if !tweens.contains(tween) {
+            tweens.append(tween)
+        }
     }
 }

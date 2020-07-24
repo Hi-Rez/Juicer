@@ -2,14 +2,9 @@ import Easings
 import Foundation
 
 public class Tween {
-    public var _onStart: (() -> ())?
-    public var _onUpdate: ((_ progress: Double) -> ())?
-    public var _onComplete: (() -> ())?
-    public var _onLoopsComplete: (() -> ())?
-    public var _onPingPongComplete: (() -> ())?
+    // Properties
     
-    public var easingFn: ((_ time: Double) -> Double) = easeLinear
-    
+    public var id: String = UUID().uuidString
     public var loops: Int = 0
     public var loop: Int = 0
     
@@ -22,57 +17,69 @@ public class Tween {
     private var delayOnPingPong: Bool = false
     public var progress: Double = 0.0
     
+    // Easing
+    public var easingFn: ((_ time: Double) -> Double) = easeLinear
+    
+    // Callbacks
+    public var _onStart: (() -> ())?
+    public var _onRestart: (() -> ())?
+    public var _onPlay: (() -> ())?
+    public var _onPause: (() -> ())?
+    public var _onStop: (() -> ())?
+    public var _onUpdate: ((_ progress: Double) -> ())?
+    public var _onComplete: (() -> ())?
+    public var _onLoopsComplete: (() -> ())?
+    public var _onPingPongComplete: (() -> ())?
+    
     private var firstTime: Bool = true
     private var delay: CFTimeInterval = 0.0
     private var duration: CFTimeInterval = 0.0
     private var startTime: CFTimeInterval = 0.0
     
-    init(duration: Double, delay: Double = 0.0) {
+    internal init(duration: Double) {
         self.duration = duration
-        self.delay = delay
     }
     
-    public func start() -> Tween {
+    public func restart()
+    {
+        loop = 0
+        _onRestart?()
+        start()
+    }
+    
+    public func start() {
+        if complete {
+            Tweener.append(self)
+        }
         tweening = true
         complete = false
-        startTime = CFAbsoluteTimeGetCurrent() + (( firstTime || delayOnLoop || (delayOnPingPong && !pingPongState)) ? delay : 0.0)
+        startTime = CFAbsoluteTimeGetCurrent() + ((firstTime || delayOnLoop || (delayOnPingPong && !pingPongState)) ? delay : 0.0)
         _onStart?()
-        firstTime = false        
-        return self
+        firstTime = false
     }
     
-//    public func pause() {
-//        tweening = false
-//    }
-//
-//    public func stop() {
-//        tweening = false
-//    }
-    
-    public func pingPong(_ pingPong: Bool = true) -> Tween {
-        self.pingPong = pingPong
-        return self
-    }
-    
-    public func delay(_ delay: Double, onLoop: Bool = false, onPingPing: Bool = false) -> Tween {
-        self.delay = delay
-        self.delayOnLoop = onLoop
-        self.delayOnPingPong = onPingPing
-        return self
-    }
-    
-    public func loop(_ looping: Bool = true) -> Tween {
-        self.looping = looping
-        return self
-    }
-    
-    public func loops(_ count: Int) -> Tween {
-        self.loops = count
+    public func onRestart(_ restartFn: @escaping (() -> ())) -> Tween {
+        _onRestart = restartFn
         return self
     }
     
     public func onStart(_ startFn: @escaping (() -> ())) -> Tween {
         _onStart = startFn
+        return self
+    }
+    
+    public func onPlay(_ playFn: @escaping (() -> ())) -> Tween {
+        _onPlay = playFn
+        return self
+    }
+    
+    public func onPause(_ pauseFn: @escaping (() -> ())) -> Tween {
+        _onPause = pauseFn
+        return self
+    }
+    
+    public func onStop(_ stopFn: @escaping (() -> ())) -> Tween {
+        _onStop = stopFn
         return self
     }
     
@@ -98,6 +105,53 @@ public class Tween {
     
     public func onPingPongComplete(_ pingPongCompleteFn: @escaping (() -> ())) -> Tween {
         _onPingPongComplete = pingPongCompleteFn
+        return self
+    }
+    
+    public func play() {
+        if complete {
+            restart()
+        }
+        else
+        {
+            tweening = true
+            startTime = CFAbsoluteTimeGetCurrent() - progress * duration
+        }
+        _onPlay?()
+    }
+    
+    public func pause() {
+        updateProgress()
+        tweening = false
+        _onPause?()
+    }
+    
+    public func stop() {
+        updateProgress()
+        tweening = false
+        _onStop?()
+        progress = 0.0
+    }
+    
+    public func pingPong(_ pingPong: Bool = true) -> Tween {
+        self.pingPong = pingPong
+        return self
+    }
+    
+    public func delay(_ delay: Double, onLoop: Bool = false, onPingPing: Bool = false) -> Tween {
+        self.delay = delay
+        delayOnLoop = onLoop
+        delayOnPingPong = onPingPing
+        return self
+    }
+    
+    public func loop(_ looping: Bool = true) -> Tween {
+        self.looping = looping
+        return self
+    }
+    
+    public func loops(_ count: Int) -> Tween {
+        loops = count
         return self
     }
     
@@ -169,26 +223,32 @@ public class Tween {
         return self
     }
     
-    func pingPong(_ progress: Double) -> Double
-    {
+    func pingPong(_ progress: Double) -> Double {
         if pingPong, pingPongState {
             return 1.0 - progress
         }
         return progress
     }
     
+    internal func updateProgress() {
+        let deltaTime = (CFAbsoluteTimeGetCurrent() - startTime)
+        guard deltaTime >= 0 else { return }
+        progress = max(min(1.0, deltaTime / duration), 0.0)
+    }
+    
     internal func update() {
         guard tweening else { return }
         
-        let deltaTime = (CFAbsoluteTimeGetCurrent() - startTime)
-        guard deltaTime >= 0 else { return }
+        updateProgress()
         
-        progress = (max(min(1.0, deltaTime / duration), 0.0))
         _onUpdate?(easingFn(pingPong(progress)))
         
         if progress >= 1.0 {
             loop += 1
+            
             complete = true
+            tweening = false
+            
             _onComplete?()
             
             var restart = false
@@ -210,19 +270,24 @@ public class Tween {
                     _onPingPongComplete?()
                 }
             }
-                        
-            if looping || loopsLeft > 0 {
+            
+            if looping || (loops > 0 && loopsLeft > 0) {
                 restart = true
             }
-                        
+            
             if restart {
                 _ = start()
             }
         }
-        
     }
     
     deinit {
-        print("killing tween!")
+        
+    }
+}
+
+extension Tween: Equatable {
+    public static func == (lhs: Tween, rhs: Tween) -> Bool {
+        return lhs.id == rhs.id
     }
 }
