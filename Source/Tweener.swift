@@ -37,7 +37,7 @@ public class Tweener {
 
     #endif
 
-    @objc class func update()
+    @objc private class func update()
     {
         for (index, tween) in Tweener.tweens.enumerated() {
             tween.update()
@@ -47,7 +47,7 @@ public class Tweener {
         }
     }
 
-    class func tween(duration: Double, delay: Double = 0.0) -> Tween {
+    public class func tween(duration: Double, delay: Double = 0.0) -> Tween {
         if Tweener.displayLink == nil {
             setupDisplayLink()
         }
