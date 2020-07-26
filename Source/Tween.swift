@@ -27,6 +27,7 @@ public class Tween {
     private var _onPause: (() -> ())?
     private var _onStop: (() -> ())?
     private var _onUpdate: ((_ progress: Double) -> ())?
+    private var _onTween: ((_ progress: Double) -> ())?
     private var _onComplete: (() -> ())?
     private var _onLoopsComplete: (() -> ())?
     private var _onPingPongComplete: (() -> ())?
@@ -85,6 +86,11 @@ public class Tween {
     
     public func onUpdate(_ updateFn: @escaping ((_ progress: Double) -> ())) -> Tween {
         _onUpdate = updateFn
+        return self
+    }
+    
+    internal func onTween(_ tweenFn: @escaping ((_ progress: Double) -> ())) -> Tween {
+        _onTween = tweenFn
         return self
     }
     
@@ -159,6 +165,8 @@ public class Tween {
         switch easing {
         case .linear:
             easingFn = easeLinear
+        case .smoothstep:
+            easingFn = easeSmoothstep
         case .inSine:
             easingFn = easeInSine
         case .outSine:
@@ -241,7 +249,9 @@ public class Tween {
         
         updateProgress()
         
-        _onUpdate?(easingFn(pingPong(progress)))
+        let value = easingFn(pingPong(progress))
+        _onUpdate?(value)
+        _onTween?(value)
         
         if progress >= 1.0 {
             loop += 1
