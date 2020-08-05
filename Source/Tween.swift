@@ -41,14 +41,13 @@ public class Tween {
         self.duration = duration
     }
     
-    public func restart()
-    {
+    public func restart() -> Tween {
         loop = 0
         _onRestart?()
-        start()
+        return start()
     }
     
-    public func start() {
+    public func start() -> Tween {
         if complete {
             Tweener.append(self)
         }
@@ -57,6 +56,7 @@ public class Tween {
         startTime = CFAbsoluteTimeGetCurrent() + ((firstTime || delayOnLoop || (delayOnPingPong && !pingPongState)) ? delay : 0.0)
         _onStart?()
         firstTime = false
+        return self
     }
     
     public func onRestart(_ restartFn: @escaping (() -> ())) -> Tween {
@@ -114,9 +114,9 @@ public class Tween {
         return self
     }
     
-    public func play() {
+    public func play() -> Tween {
         if complete {
-            restart()
+            return restart()
         }
         else
         {
@@ -124,6 +124,7 @@ public class Tween {
             startTime = CFAbsoluteTimeGetCurrent() - progress * duration
         }
         _onPlay?()
+        return self
     }
     
     public func pause() {
@@ -153,6 +154,11 @@ public class Tween {
     
     public func loop(_ looping: Bool = true) -> Tween {
         self.looping = looping
+        return self
+    }
+    
+    public func duration(_ duration: Double) -> Tween {
+        self.duration = duration
         return self
     }
     
