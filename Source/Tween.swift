@@ -51,10 +51,8 @@ public class Tween {
         if complete {
             Tweener.append(self)
         }
-        tweening = true
         complete = false
         startTime = CFAbsoluteTimeGetCurrent() + ((firstTime || delayOnLoop || (delayOnPingPong && !pingPongState)) ? delay : 0.0)
-        _onStart?()
         firstTime = false
         return self
     }
@@ -247,18 +245,22 @@ public class Tween {
     internal func updateProgress() {
         let deltaTime = (CFAbsoluteTimeGetCurrent() - startTime)
         guard deltaTime >= 0 else { return }
+        if !tweening {
+            tweening = true
+            _onStart?()
+        }
         progress = max(min(1.0, deltaTime / duration), 0.0)
     }
     
     internal func update() {
-        guard tweening else { return }
-        
         updateProgress()
+        
+        guard tweening else { return }
         
         let value = easingFn(pingPong(progress))
         _onUpdate?(value)
         _onTween?(value)
-        
+
         if progress >= 1.0 {
             loop += 1
             
