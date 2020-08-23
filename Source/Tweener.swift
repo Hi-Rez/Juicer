@@ -28,6 +28,11 @@ public class Tweener {
         return kCVReturnSuccess
     }
 
+    deinit {
+        CVDisplayLinkStop(Tweener.displayLink!)
+        Tweener.tweens = []
+    }
+
     #else
 
     private static var displayLink: CADisplayLink?
@@ -37,6 +42,11 @@ public class Tweener {
             Tweener.displayLink = CADisplayLink(target: self, selector: #selector(Tweener.update))
             Tweener.displayLink!.add(to: .current, forMode: .default)
         }
+    }
+
+    deinit {
+        Tweener.displayLink!.invalidate()
+        Tweener.tweens = []
     }
 
     #endif
