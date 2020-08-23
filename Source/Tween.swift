@@ -254,7 +254,7 @@ public class Tween {
     internal func update() {
         updateProgress()
         
-        guard tweening else { return }
+        guard tweening, progress >= 0.0 else { return }
 
         let _progress = pingPong(progress)
         let _tween = easingFn(_progress)
