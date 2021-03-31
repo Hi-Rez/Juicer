@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name                   = "Juicer"
-  spec.version                = "0.0.1"
+  spec.version                = "0.0.2"
   spec.summary                = "Juicer is a generic animation framework for macOS & iOS & tvOS written in Swift"
   spec.description            = <<-DESC
   Juicer is a generic animation framework for macOS & iOS & tvOS written in Swift... Juice it or lose it! Juicer integrates tightly with Satin's Object class to help move things around in 2D/3D
@@ -11,7 +11,7 @@ Pod::Spec.new do |spec|
   spec.social_media_url       = "https://twitter.com/rezaali"
   spec.source                 = { :git => "https://github.com/Hi-Rez/Juicer.git", :tag => spec.version.to_s }
 
-  spec.osx.deployment_target  = "10.14"
+  spec.osx.deployment_target  = "10.15"
   spec.ios.deployment_target  = "13.0"
   spec.tvos.deployment_target = "13.0"
 
