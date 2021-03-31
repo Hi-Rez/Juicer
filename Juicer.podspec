@@ -18,6 +18,6 @@ Pod::Spec.new do |spec|
   spec.source_files           = "Source/*.h", "Source/**/*.{h,m,swift}"
   spec.module_name            = "Juicer"
   spec.swift_version          = "5.1"
-  spec.dependency             'Easings', :git => 'https://github.com/Hi-Rez/Easings.git'
-  spec.dependency             'Satin', :git => 'https://github.com/Hi-Rez/Satin.git'
+  spec.dependency             'Easings'
+  spec.dependency             'Satin'
 end
