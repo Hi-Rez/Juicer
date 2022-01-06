@@ -1,4 +1,5 @@
 import Satin
+import QuartzCore
 
 public class Tweener {
     static let shared = Tweener()
