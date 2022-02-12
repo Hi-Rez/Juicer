@@ -27,6 +27,7 @@ public class Tween {
     private var _onPause: (() -> ())?
     private var _onStop: (() -> ())?
     private var _onUpdate: ((_ progress: Double) -> ())?
+    private var _onTweenStart: (() -> ())?
     private var _onTween: ((_ value: Double) -> ())?
     private var _onComplete: (() -> ())?
     private var _onLoopsComplete: (() -> ())?
@@ -35,7 +36,12 @@ public class Tween {
     private var firstTime: Bool = true
     private var delay: CFTimeInterval = 0.0
     private var duration: CFTimeInterval = 0.0
-    private var startTime: CFTimeInterval = 0.0
+    private var startTime: CFTimeInterval = 0.0 {
+        didSet {
+            lastDeltaTime = -1.0
+        }
+    }
+    private var lastDeltaTime: CFTimeInterval = 0.0
     
     internal init(duration: Double) {
         self.duration = duration
@@ -87,6 +93,11 @@ public class Tween {
     
     public func onUpdate(_ updateFn: @escaping ((_ progress: Double) -> ())) -> Tween {
         _onUpdate = updateFn
+        return self
+    }
+    
+    public func onTweenStart(_ tweenStartFn: @escaping (() -> ())) -> Tween {
+        _onTweenStart = tweenStartFn
         return self
     }
     
@@ -248,7 +259,11 @@ public class Tween {
     internal func updateProgress() {
         guard tweening else { return }
         let deltaTime = (CFAbsoluteTimeGetCurrent() - startTime)
-        progress = max(min(1.0, deltaTime / duration), 0.0)
+        if deltaTime >= 0.0 && lastDeltaTime < 0.0 {
+            _onTweenStart?()
+        }
+        lastDeltaTime = deltaTime
+        progress = deltaTime / duration
     }
     
     internal func update() {
