@@ -271,7 +271,7 @@ public class Tween {
         
         guard tweening, progress >= 0.0 else { return }
 
-        let _progress = pingPong(progress)
+        let _progress = pingPong(min(max(progress, 0.0), 1.0))
         let _tween = easingFn(_progress)
 
         _onUpdate?(_progress)

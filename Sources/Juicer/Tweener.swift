@@ -76,11 +76,24 @@ public class Tweener {
         })
         return tween
     }
-
+    
     public class func tweenPosition(duration: Double, object: Satin.Object, to: simd_float3) -> Tween {
         return tweenPosition(duration: duration, object: object, from: object.position, to: to)
     }
+    
+    public class func tweenParameter(duration: Double, parameter: Satin.FloatParameter, from: Float, to: Float) -> Tween {
+        setupDisplayLink()
+        let tween = Tween(duration: duration)
+        tweens.append(tween.onTween { [parameter, from, to] (value: Double) in
+            parameter.value = simd_mix(from, to, Float(value))
+        })
+        return tween
+    }
 
+    public class func tweenParameter(duration: Double, parameter: Satin.FloatParameter, to: Float) -> Tween {
+        return tweenParameter(duration: duration, parameter: parameter, from: parameter.value, to: to)
+    }
+    
     public class func tweenScale(duration: Double, object: Satin.Object, from: simd_float3, to: simd_float3) -> Tween {
         setupDisplayLink()
         let tween = Tween(duration: duration)
