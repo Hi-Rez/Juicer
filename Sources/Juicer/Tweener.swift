@@ -41,7 +41,7 @@ public class Tweener {
     private class func setupDisplayLink() {
         if Tweener.displayLink == nil {
             Tweener.displayLink = CADisplayLink(target: self, selector: #selector(Tweener.update))
-            Tweener.displayLink!.add(to: .current, forMode: .default)
+            Tweener.displayLink!.add(to: .main, forMode: .default)
         }
     }
 
