@@ -1,9 +1,10 @@
 import Easings
 import Foundation
 
-public class Tween {
+public class Tween: CustomStringConvertible {
     // Properties
     public private(set) var id: String = UUID().uuidString
+    public private(set) var label: String = "Tween"
     public private(set) var loops: Int = 0
     public private(set) var loop: Int = 0
     
@@ -41,7 +42,12 @@ public class Tween {
             lastDeltaTime = -1.0
         }
     }
+
     private var lastDeltaTime: CFTimeInterval = 0.0
+    
+    public var description: String {
+        label
+    }
     
     internal init(duration: Double) {
         self.duration = duration
@@ -130,8 +136,7 @@ public class Tween {
         if complete {
             return restart()
         }
-        else
-        {
+        else {
             tweening = true
             startTime = CFAbsoluteTimeGetCurrent() - progress * duration
         }
@@ -249,6 +254,11 @@ public class Tween {
         return self
     }
     
+    public func labeled(_ label: String) -> Tween {
+        self.label = label
+        return self
+    }
+    
     func pingPong(_ progress: Double) -> Double {
         if pingPong, pingPongState {
             return 1.0 - progress
@@ -315,9 +325,7 @@ public class Tween {
         }
     }
     
-    deinit {
-        
-    }
+    deinit {}
 }
 
 extension Tween: Equatable {
