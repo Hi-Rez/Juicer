@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Easings",
+        "repositoryURL": "https://github.com/Hi-Rez/Easings",
+        "state": {
+          "branch": null,
+          "revision": "f61c2f67d064a7306142be2579dde56281a04710",
+          "version": "0.0.4"
+        }
+      },
+      {
+        "package": "Satin",
+        "repositoryURL": "https://github.com/Hi-Rez/Satin",
+        "state": {
+          "branch": null,
+          "revision": "08a068949ab72623d4e170fa8e7304f5ec8f30ea",
+          "version": "2.1.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
