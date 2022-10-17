@@ -60,10 +60,19 @@ public class Tweener {
 
     @objc private class func update() {
         for (index, tween) in tweens.enumerated().reversed() {
+            #if os(macOS)
+            DispatchQueue.main.sync {
+                tween.update()
+                if tween.complete {
+                    tweens.remove(at: index)
+                }
+            }
+            #else
             tween.update()
             if tween.complete {
                 tweens.remove(at: index)
             }
+            #endif
         }
 
         if tweens.isEmpty, let _ = Tweener.displayLink {
