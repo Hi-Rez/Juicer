@@ -7,20 +7,20 @@ public class Tween: CustomStringConvertible {
     public private(set) var label: String = "Tween"
     public private(set) var loops: Int = 0
     public private(set) var loop: Int = 0
-    
+
     public private(set) var tweening: Bool = false
     public private(set) var complete: Bool = false
     public private(set) var looping: Bool = false
     public private(set) var pingPong: Bool = false
     public private(set) var pingPongState: Bool = false
     public private(set) var progress: Double = 0.0
-    
+
     public private(set) var delayOnLoop: Bool = false
     public private(set) var delayOnPingPong: Bool = false
-    
+
     // Easing
     public var easingFn: ((_ time: Double) -> Double) = easeLinear
-    
+
     // Callbacks
     private var _onStart: (() -> ())?
     private var _onRestart: (() -> ())?
@@ -33,7 +33,7 @@ public class Tween: CustomStringConvertible {
     private var _onComplete: (() -> ())?
     private var _onLoopsComplete: (() -> ())?
     private var _onPingPongComplete: (() -> ())?
-    
+
     private var firstTime: Bool = true
     private var delay: CFTimeInterval = 0.0
     private var duration: CFTimeInterval = 0.0
@@ -44,21 +44,21 @@ public class Tween: CustomStringConvertible {
     }
 
     private var lastDeltaTime: CFTimeInterval = 0.0
-    
+
     public var description: String {
         label
     }
-    
+
     internal init(duration: Double) {
         self.duration = duration
     }
-    
+
     public func restart() -> Tween {
         loop = 0
         _onRestart?()
         return start()
     }
-    
+
     public func start() -> Tween {
         if complete {
             Tweener.append(self)
@@ -71,67 +71,67 @@ public class Tween: CustomStringConvertible {
         firstTime = false
         return self
     }
-    
+
     public func onRestart(_ restartFn: @escaping (() -> ())) -> Tween {
         _onRestart = restartFn
         return self
     }
-    
+
     public func onStart(_ startFn: @escaping (() -> ())) -> Tween {
         _onStart = startFn
         return self
     }
-    
+
     public func onPlay(_ playFn: @escaping (() -> ())) -> Tween {
         _onPlay = playFn
         return self
     }
-    
+
     public func onPause(_ pauseFn: @escaping (() -> ())) -> Tween {
         _onPause = pauseFn
         return self
     }
-    
+
     public func onStop(_ stopFn: @escaping (() -> ())) -> Tween {
         _onStop = stopFn
         return self
     }
-    
+
     public func onUpdate(_ updateFn: @escaping ((_ progress: Double) -> ())) -> Tween {
         _onUpdate = updateFn
         return self
     }
-    
+
     public func onTweenStart(_ tweenStartFn: @escaping (() -> ())) -> Tween {
         _onTweenStart = tweenStartFn
         return self
     }
-    
+
     public func onTween(_ tweenFn: @escaping ((_ progress: Double) -> ())) -> Tween {
         _onTween = tweenFn
         return self
     }
-    
+
     public func onEasing(_ easingFn: @escaping ((_ time: Double) -> Double)) -> Tween {
         self.easingFn = easingFn
         return self
     }
-    
+
     public func onComplete(_ completeFn: @escaping (() -> ())) -> Tween {
         _onComplete = completeFn
         return self
     }
-    
+
     public func onLoopsComplete(_ loopsCompleteFn: @escaping (() -> ())) -> Tween {
         _onLoopsComplete = loopsCompleteFn
         return self
     }
-    
+
     public func onPingPongComplete(_ pingPongCompleteFn: @escaping (() -> ())) -> Tween {
         _onPingPongComplete = pingPongCompleteFn
         return self
     }
-    
+
     public func play() -> Tween {
         if complete {
             return restart()
@@ -143,47 +143,47 @@ public class Tween: CustomStringConvertible {
         _onPlay?()
         return self
     }
-    
+
     public func pause() {
         updateProgress()
         tweening = false
         _onPause?()
     }
-    
+
     public func stop() {
         updateProgress()
         tweening = false
         _onStop?()
         progress = 0.0
     }
-    
+
     public func pingPong(_ pingPong: Bool = true) -> Tween {
         self.pingPong = pingPong
         return self
     }
-    
+
     public func delay(_ delay: Double, onLoop: Bool = false, onPingPing: Bool = false) -> Tween {
         self.delay = delay
         delayOnLoop = onLoop
         delayOnPingPong = onPingPing
         return self
     }
-    
+
     public func loop(_ looping: Bool = true) -> Tween {
         self.looping = looping
         return self
     }
-    
+
     public func duration(_ duration: Double) -> Tween {
         self.duration = duration
         return self
     }
-    
+
     public func loops(_ count: Int) -> Tween {
         loops = count
         return self
     }
-    
+
     public func easing(_ easing: Easing) -> Tween {
         switch easing {
         case .linear:
@@ -253,19 +253,19 @@ public class Tween: CustomStringConvertible {
         }
         return self
     }
-    
+
     public func labeled(_ label: String) -> Tween {
         self.label = label
         return self
     }
-    
+
     func pingPong(_ progress: Double) -> Double {
         if pingPong, pingPongState {
             return 1.0 - progress
         }
         return progress
     }
-    
+
     internal func updateProgress() {
         guard tweening else { return }
         let deltaTime = (CFAbsoluteTimeGetCurrent() - startTime)
@@ -275,7 +275,7 @@ public class Tween: CustomStringConvertible {
         lastDeltaTime = deltaTime
         progress = deltaTime / duration
     }
-    
+
     internal func update() {
         updateProgress()
         
@@ -289,14 +289,14 @@ public class Tween: CustomStringConvertible {
 
         if progress >= 1.0 {
             loop += 1
-            
+
             complete = true
             tweening = false
-            
+
             _onComplete?()
-            
+
             var restart = false
-            
+
             var loopsLeft = Int.max
             if !looping, loops > 0 {
                 loopsLeft = loops - loop
@@ -304,7 +304,7 @@ public class Tween: CustomStringConvertible {
                     _onLoopsComplete?()
                 }
             }
-            
+
             if pingPong, loopsLeft > 0 {
                 pingPongState = !pingPongState
                 if pingPongState {
@@ -314,17 +314,17 @@ public class Tween: CustomStringConvertible {
                     _onPingPongComplete?()
                 }
             }
-            
+
             if looping || (loops > 0 && loopsLeft > 0) {
                 restart = true
             }
-            
+
             if restart {
                 _ = start()
             }
         }
     }
-    
+
     deinit {}
 }
 

@@ -24,7 +24,9 @@ public class Tweener {
     private static let displayLoop: CVDisplayLinkOutputCallback = {
         _, _, _, _, _, _ in
         autoreleasepool {
-            Tweener.update()
+            DispatchQueue.main.async {
+                Tweener.update()
+            }
         }
         return kCVReturnSuccess
     }
@@ -60,19 +62,10 @@ public class Tweener {
 
     @objc private class func update() {
         for (index, tween) in tweens.enumerated().reversed() {
-            #if os(macOS)
-            DispatchQueue.main.sync {
-                tween.update()
-                if tween.complete {
-                    tweens.remove(at: index)
-                }
-            }
-            #else
             tween.update()
             if tween.complete {
                 tweens.remove(at: index)
             }
-            #endif
         }
 
         if tweens.isEmpty, let _ = Tweener.displayLink {
