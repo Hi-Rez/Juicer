@@ -1,5 +1,6 @@
 import QuartzCore
 import Satin
+import simd
 
 public class Tweener {
     static let shared = Tweener()
